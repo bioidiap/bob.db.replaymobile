@@ -1,0 +1,355 @@
+#!/usr/bin/env python
+# vim: set fileencoding=utf-8 :
+# Artur Costa Pazo <artur.costa-pazo@idiap.ch>
+# Fri Nov 13 11:11:11 2015 +0200
+#
+# Copyright (C) 2015 Idiap Research Institute, Martigny, Switzerland
+
+"""Table models and functionality for the Replay Mobile DB.
+"""
+
+import sqlalchemy
+import os
+from sqlalchemy import Table, Column, Integer, String, ForeignKey
+from bob.db.base.sqlalchemy_migration import Enum, relationship
+import bob.db.base.utils
+from sqlalchemy.orm import backref
+from sqlalchemy.ext.declarative import declarative_base
+import numpy
+import bob
+
+Base = declarative_base()
+
+class Client(Base):
+  """Database clients, marked by an integer identifier and the set they belong
+  to"""
+
+  __tablename__ = 'client'
+
+  set_choices = ('train', 'devel', 'test')
+  """Possible groups to which clients may belong to"""
+
+  id = Column(Integer, primary_key=True)
+  """Key identifier for clients"""
+
+  set = Column(Enum(*set_choices))
+  """Set to which this client belongs to"""
+
+  def __init__(self, id, set):
+    self.id = id
+    self.set = set
+
+  def __repr__(self):
+    return "Client('%s', '%s')" % (self.id, self.set)
+
+class File(Base):
+  """Generic file container"""
+
+  __tablename__ = 'file'
+
+  light_choices = ('lighton','lightoff','controlled', 'adverse','direct','lateral','diffuse')
+  """List of illumination conditions for data taking"""
+
+  device_choices = ('mobile','tablet')
+  """List of devices"""
+
+  id = Column(Integer, primary_key=True)
+  """Key identifier for files"""
+
+  client_id = Column(Integer, ForeignKey('client.id')) # for SQL
+  """The client identifier to which this file is bound to"""
+
+  path = Column(String(100), unique=True)
+  """The (unique) path to this file inside the database"""
+
+  light = Column(Enum(*light_choices))
+  """The illumination condition in which the data for this file was taken"""
+
+  device = Column(Enum(*device_choices))
+  """The device"""
+
+  # for Python
+  client = relationship(Client, backref=backref('files', order_by=id))
+  """A direct link to the client object that this file belongs to"""
+
+  def __init__(self, client, path, light,device):
+    self.client = client
+    self.path = path
+    self.light = light
+    self.device = device
+
+  def __repr__(self):
+    return "File('%s')" % self.path
+
+  def make_path(self, directory=None, extension=None):
+    """Wraps the current path so that a complete path is formed
+
+    Keyword parameters:
+
+    directory
+      An optional directory name that will be prefixed to the returned result.
+
+    extension
+      An optional extension that will be suffixed to the returned filename. The
+      extension normally includes the leading ``.`` character as in ``.jpg`` or
+      ``.hdf5``.
+
+    Returns a string containing the newly generated file path.
+    """
+
+    if not directory: directory = ''
+    if not extension: extension = ''
+
+    return str(os.path.join(directory, self.path + extension))
+
+  def videofile(self, directory=None):
+    """Returns the path to the database video file for this object
+
+    Keyword parameters:
+
+    directory
+      An optional directory name that will be prefixed to the returned result.
+
+    Returns a string containing the video file path.
+    """
+
+    return self.make_path(directory, '.mov')
+
+  def facefile(self, directory=None):
+    """Returns the path to the companion face bounding-box file
+
+    Keyword parameters:
+
+    directory
+      An optional directory name that will be prefixed to the returned result.
+
+    Returns a string containing the face file path.
+    """
+
+    if not directory: directory = ''
+    directory = os.path.join(directory, 'face-locations')
+    return self.make_path(directory, '.face')
+
+  def bbx(self, directory=None):
+    """Reads the file containing the face locations for the frames in the
+    current video
+
+    Keyword parameters:
+
+    directory
+      A directory name that will be prepended to the final filepaths where the
+      face bounding boxes are located, if not on the current directory.
+
+    Returns:
+      A :py:class:`numpy.ndarray` containing information about the located
+      faces in the videos. Each row of the :py:class:`numpy.ndarray`
+      corresponds for one frame. The five columns of the
+      :py:class:`numpy.ndarray` are (all integers):
+
+      * Frame number (int)
+      * Bounding box top-left X coordinate (int)
+      * Bounding box top-left Y coordinate (int)
+      * Bounding box width (int)
+      * Bounding box height (int)
+
+      Note that **not** all the frames may contain detected faces.
+    """
+
+    return numpy.loadtxt(self.facefile(directory), dtype=int)
+
+  def is_real(self):
+    """Returns True if this file belongs to a real access, False otherwise"""
+
+    return bool(self.realaccess)
+
+  def is_mobile(self):
+    """True if the video file is originally recorded with mobile device, False otherwise """
+    value = False
+    if self.device=='mobile':
+      value = True
+    return value
+
+  def is_tablet(self):
+    """True if the video file is originally recorded rotated by 270 degrees, False otherwise """
+    value = False
+    if self.device=='tablet':
+      value = True
+    return value
+
+  def get_realaccess(self):
+    """Returns the real-access object equivalent to this file or raise"""
+    if len(self.realaccess) == 0:
+      raise RuntimeError("%s is not a real-access" % self)
+    return self.realaccess[0]
+
+  def get_attack(self):
+    """Returns the attack object equivalent to this file or raise"""
+    if len(self.attack) == 0:
+      raise RuntimeError("%s is not an attack" % self)
+    return self.attack[0]
+
+  def load(self, directory=None, extension='.hdf5'):
+    """Loads the data at the specified location and using the given extension.
+
+    Keyword parameters:
+
+    data
+      The data blob to be saved (normally a :py:class:`numpy.ndarray`).
+
+    directory
+      [optional] If not empty or None, this directory is prefixed to the final
+      file destination
+
+    extension
+      [optional] The extension of the filename - this will control the type of
+      output and the codec for saving the input blob.
+    """
+    return bob.io.base.load(self.make_path(directory, extension))
+
+  def save(self, data, directory=None, extension='.hdf5'):
+    """Saves the input data at the specified location and using the given
+    extension.
+
+    Keyword parameters:
+
+    data
+      The data blob to be saved (normally a :py:class:`numpy.ndarray`).
+
+    directory
+      [optional] If not empty or None, this directory is prefixed to the final
+      file destination
+
+    extension
+      [optional] The extension of the filename - this will control the type of
+      output and the codec for saving the input blob.
+    """
+
+    path = self.make_path(directory, extension)
+    bob.io.base.create_directories_safe(os.path.dirname(path))
+    bob.io.base.save(data, path)
+
+# Intermediate mapping from RealAccess's to Protocol's
+realaccesses_protocols = Table('realaccesses_protocols', Base.metadata,
+    Column('realaccess_id', Integer, ForeignKey('realaccess.id')),
+    Column('protocol_id', Integer, ForeignKey('protocol.id')),
+    )
+
+# Intermediate mapping from Attack's to Protocol's
+attacks_protocols = Table('attacks_protocols', Base.metadata,
+    Column('attack_id', Integer, ForeignKey('attack.id')),
+    Column('protocol_id', Integer, ForeignKey('protocol.id')),
+    )
+
+class Protocol(Base):
+  """Replay mobile protocol"""
+
+  __tablename__ = 'protocol'
+
+  id = Column(Integer, primary_key=True)
+  """Unique identifier for the protocol (integer)"""
+
+  name = Column(String(20), unique=True)
+  """Protocol name"""
+
+  def __init__(self, name):
+    self.name = name
+
+  def __repr__(self):
+    return "Protocol('%s')" % (self.name,)
+
+class RealAccess(Base):
+  """Defines Real-Accesses (licit attempts to authenticate)"""
+
+  __tablename__ = 'realaccess'
+
+  purpose_choices = ('authenticate', 'enroll')
+  """Types of purpose for this video"""
+
+  type_device = ('mobile','tablet')
+  """List of devices"""
+
+  id = Column(Integer, primary_key=True)
+  """Unique identifier for this real-access object"""
+
+  file_id = Column(Integer, ForeignKey('file.id')) # for SQL
+  """The file identifier the current real-access is bound to"""
+
+  purpose = Column(Enum(*purpose_choices))
+  """The purpose of this video"""
+
+  device = Column(Enum(*type_device))
+  """The devices"""
+
+  #take = Column(Integer)
+  """Take number"""
+
+  # for Python
+  file = relationship(File, backref=backref('realaccess', order_by=id))
+  """A direct link to the :py:class:`.File` object this real-access belongs to"""
+
+  protocols = relationship("Protocol", secondary=realaccesses_protocols,
+      backref='realaccesses')
+  """A direct link to the protocols this file is linked to"""
+
+  #def __init__(self, file, purpose, take,device):
+  def __init__(self, file, purpose,device):
+    self.file = file
+    self.purpose = purpose
+    #self.take = take
+    self.device = device
+
+  def __repr__(self):
+    return "RealAccess('%s')" % (self.file.path)
+
+class Attack(Base):
+  """Defines Spoofing Attacks (illicit attempts to authenticate)"""
+
+  __tablename__ = 'attack'
+
+  attack_support_choices = ('fixed', 'hand')
+  """Types of attack support"""
+
+  attack_device_choices = ('print', 'mattescreen')
+  """Types of devices used for spoofing"""
+
+  sample_type_choices = ('video', 'photo')
+  """Original sample type"""
+
+  type_device = ('mobile','tablet')
+  """List of devices"""
+
+  id = Column(Integer, primary_key=True)
+  """Unique identifier for this attack"""
+
+  file_id = Column(Integer, ForeignKey('file.id')) # for SQL
+  """The file identifier this attack is linked to"""
+
+  attack_support = Column(Enum(*attack_support_choices))
+  """The attack support"""
+
+  attack_device = Column(Enum(*attack_device_choices))
+  """The attack device"""
+
+  sample_type = Column(Enum(*sample_type_choices))
+  """The attack sample type"""
+
+  sample_device = Column(Enum(*type_device))
+  """The attack sample device"""
+
+  # for Python
+  file = relationship(File, backref=backref('attack', order_by=id))
+  """A direct link to the :py:class:`.File` object bound to this attack"""
+
+  protocols = relationship("Protocol", secondary=attacks_protocols,
+      backref='attacks')
+  """A direct link to the protocols this file is linked to"""
+
+  def __init__(self, file, attack_support, attack_device, sample_type, sample_device):
+    self.file = file
+    self.attack_support = attack_support
+    self.attack_device = attack_device
+    self.sample_type = sample_type
+    self.sample_device = sample_device
+
+  def __repr__(self):
+    return "<Attack('%s')>" % (self.file.path)
