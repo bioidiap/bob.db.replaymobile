@@ -2,25 +2,27 @@
 .. Manuel Guenther <manuel.guenther@idiap.ch>
 .. Fri Oct 31 14:18:57 CET 2014
 
+.. TODO: Should be checked
+
 .. image:: http://img.shields.io/badge/docs-stable-yellow.png
-   :target: http://pythonhosted.org/bob.db.replay/index.html
+   :target: http://pythonhosted.org/bob.db.replaymobile/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.png
-   :target: https://www.idiap.ch/software/bob/docs/latest/bioidiap/bob.db.replay/master/index.html
+   :target: https://www.idiap.ch/software/bob/docs/latest/bioidiap/bob.db.replaymobile/master/index.html
 .. image:: https://travis-ci.org/bioidiap/bob.db.replay.svg?branch=master
-   :target: https://travis-ci.org/bioidiap/bob.db.replay
+   :target: https://travis-ci.org/bioidiap/bob.db.replaymobile
 .. image:: https://coveralls.io/repos/bioidiap/bob.db.replay/badge.png
-   :target: https://coveralls.io/r/bioidiap/bob.db.replay
+   :target: https://coveralls.io/r/bioidiap/bob.db.replaymobile
 .. image:: https://img.shields.io/badge/github-master-0000c0.png
-   :target: https://github.com/bioidiap/bob.db.replay/tree/master
+   :target: https://github.com/bioidiap/bob.db.replaymobile/tree/master
 .. image:: http://img.shields.io/pypi/v/bob.db.replay.png
-   :target: https://pypi.python.org/pypi/bob.db.replay
+   :target: https://pypi.python.org/pypi/bob.db.replaymobile
 .. image:: http://img.shields.io/pypi/dm/bob.db.replay.png
-   :target: https://pypi.python.org/pypi/bob.db.replay
+   :target: https://pypi.python.org/pypi/bob.db.replaymobile
 .. image:: https://img.shields.io/badge/original-data--files-a000a0.png
-   :target: http://www.idiap.ch/dataset/replayattack
+   :target: http://www.idiap.ch/dataset/replaymobile
 
 ===================================================
- Replay Mobile Database Database Interface for Bob
+ Replay Mobile Database Interface for Bob
 ===================================================
 
 This package contains the access API and descriptions for the `Replay Mobile`_ Database.

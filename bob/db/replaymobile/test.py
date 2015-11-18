@@ -56,8 +56,8 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
 
     db = Database()
     f = db.objects(cls='real')
-    #self.assertEqual(len(f), 400) # Still have to capture 2 users
-    self.assertEqual(len(f), 380) 
+    #self.assertEqual(len(f), 400) # Still have to capture 1 users (client009)
+    self.assertEqual(len(f), 390) 
     for v in f[:10]: #only the 10 first...
       self.assertTrue(isinstance(v.get_realaccess(), RealAccess))
       o = v.get_realaccess()
@@ -67,16 +67,16 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
     self.assertEqual(len(train), 120)
 
     dev = db.objects(cls='real', groups='devel')
-    #self.assertEqual(len(dev), 120) # Still have to capture 2 users
-    self.assertEqual(len(dev), 100)
+    #self.assertEqual(len(dev), 120) # Still have to capture 1 users (client009)
+    self.assertEqual(len(dev), 110)
 
     test = db.objects(cls='real', groups='test')
     self.assertEqual(len(test), 160)
 
     #tests train, devel and test files are distinct
     s = set(train + dev + test)
-    #self.assertEqual(len(s), 40) # Still have to capture 2 users
-    self.assertEqual(len(s), 380)
+    #self.assertEqual(len(s), 400) # Still have to capture 1 users (client009)
+    self.assertEqual(len(s), 390)
 
   @db_available
   def queryAttackType(self, protocol, N):
@@ -135,7 +135,7 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
     self.assertTrue(db.has_client_id(40))
     self.assertTrue(db.has_client_id(6))
     self.assertTrue(db.has_client_id(21))
-    self.assertTrue(db.has_client_id(40))
+    self.assertTrue(db.has_client_id(30))
     self.assertFalse(db.has_client_id(0))
     self.assertFalse(db.has_client_id(50))
     self.assertFalse(db.has_client_id(60))
