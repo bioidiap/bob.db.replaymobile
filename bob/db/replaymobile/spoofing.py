@@ -120,6 +120,7 @@ class Database(antispoofing.utils.db.Database):
 
     p.set_defaults(name=entry_point_name)
     p.set_defaults(cls=Database)
+    #p.set_defaults(cls=ReplayMobileDatabase)
 
     return
   create_subparser.__doc__ = antispoofing.utils.db.Database.create_subparser.__doc__
@@ -194,13 +195,13 @@ class Database(antispoofing.utils.db.Database):
   get_test_data.__doc__ = antispoofing.utils.db.Database.get_test_data.__doc__
 
   def get_test_filters(self):
-    return ('device', 'support', 'light')
-
+    return ('device', 'support', 'light','protocol')
 
   def get_filtered_test_data(self, filter):
-
+    
     def device_filter(obj, filter):
-      return obj.make_path().find('attack_' + filter) != -1
+      return obj.make_path().find(filter) != -1
+      #return obj.make_path().find('attack_' + filter) != -1
 
     def support_filter(obj, filter):
       return obj.make_path().find(filter) != -1
@@ -212,11 +213,11 @@ class Database(antispoofing.utils.db.Database):
       return obj.make_path().find(filter) != -1
 
     real, attack = self.get_test_data()
-
+    
     if filter == 'device':
       return {
-          'tablet': (real, [k for k in attack if device_filter(k, 'tablet')]),
-          'mobile': (real, [k for k in attack if device_filter(k, 'mobile')]),
+          'tablet': ([k for k in real if device_filter(k, 'tablet')], [k for k in attack if device_filter(k, 'tablet')]),
+          'mobile': ([k for k in real if device_filter(k, 'mobile')], [k for k in attack if device_filter(k, 'mobile')]),
           }
     elif filter == 'support':
       return {
@@ -225,33 +226,25 @@ class Database(antispoofing.utils.db.Database):
           }
     elif filter == 'light':
       return {
- 	  'lighton': (real, [k for k in attack if light_filter(k, 'lighton')]),
-	  'lightoff': (real, [k for k in attack if light_filter(k, 'lightoff')]),
-          'controlled': (real, [k for k in attack if light_filter(k, 'controlled')]),
-          'adverse': (real, [k for k in attack if light_filter(k, 'adverse')]),
-	  'direct': (real, [k for k in attack if light_filter(k, 'direct')]),
-          'lateral': (real, [k for k in attack if light_filter(k, 'lateral')]),
-          'diffuse': (real, [k for k in attack if light_filter(k, 'diffuse')]),
+ 	  'lighton': ([k for k in real if light_filter(k, 'lighton')], [k for k in attack if light_filter(k, 'lighton')]),
+	  'lightoff': ([k for k in real if light_filter(k, 'lightoff')], [k for k in attack if light_filter(k, 'lightoff')]),
+          'controlled': ([k for k in real if light_filter(k, 'lightoff')], [k for k in attack if light_filter(k, 'lightoff')]),
+          'adverse': ([k for k in real if light_filter(k, 'adverse')], [k for k in attack if light_filter(k, 'adverse')]),
+	  'direct': ([k for k in real if light_filter(k, 'direct')], [k for k in attack if light_filter(k, 'direct')]),
+          'lateral': ([k for k in real if light_filter(k, 'lateral')], [k for k in attack if light_filter(k, 'lateral')]),
+          'diffuse': ([k for k in real if light_filter(k, 'diffuse')], [k for k in attack if light_filter(k, 'diffuse')]),
           }
     elif filter == 'protocol':
       return {
           'print': (real, [k for k in attack if protocol_filter(k, 'print')]),
-          'photo': (real, [k for k in attack if protocol_filter(k, 'photo')]),
-          'digitalphoto': (real, [k for k in attack if protocol_filter(k, 'photo') and not protocol_filter(k, 'print')]),
-          'video': (real, [k for k in attack if protocol_filter(k, 'video')]),
-          }
-    elif filter == 'types':
-      return {
-          'print': (real, [k for k in attack if protocol_filter(k, 'print')]),
-          'photo': (real, [k for k in attack if protocol_filter(k, 'photo')]),
-          'digitalphoto': (real, [k for k in attack if protocol_filter(k, 'photo') and not protocol_filter(k, 'print')]),
-          'video': (real, [k for k in attack if protocol_filter(k, 'video')]),
+          'mattescreen': (real, [k for k in attack if protocol_filter(k, 'mattescreen')]),
           }
 
   def get_filtered_devel_data(self, filter):
 
     def device_filter(obj, filter):
-      return obj.make_path().find('attack_' + filter) != -1
+      return obj.make_path().find(filter) != -1
+      #return obj.make_path().find('attack_' + filter) != -1
 
     def support_filter(obj, filter):
       return obj.make_path().find(filter) != -1
@@ -266,8 +259,8 @@ class Database(antispoofing.utils.db.Database):
 
     if filter == 'device':
       return {
-          'tablet': (real, [k for k in attack if device_filter(k, 'tablet')]),
-          'mobile': (real, [k for k in attack if device_filter(k, 'mobile')]),
+          'tablet': ([k for k in real if device_filter(k, 'tablet')], [k for k in attack if device_filter(k, 'tablet')]),
+          'mobile': ([k for k in real if device_filter(k, 'mobile')], [k for k in attack if device_filter(k, 'mobile')]),
           }
     elif filter == 'support':
       return {
@@ -276,28 +269,18 @@ class Database(antispoofing.utils.db.Database):
           }
     elif filter == 'light':
       return {
-          'lighton': (real, [k for k in attack if light_filter(k, 'lighton')]),
-          'lightoff': (real, [k for k in attack if light_filter(k, 'lightoff')]),
-          'controlled': (real, [k for k in attack if light_filter(k, 'controlled')]),
-          'adverse': (real, [k for k in attack if light_filter(k, 'adverse')]),
-          'direct': (real, [k for k in attack if light_filter(k, 'direct')]),
-          'lateral': (real, [k for k in attack if light_filter(k, 'lateral')]),
-          'diffuse': (real, [k for k in attack if light_filter(k, 'diffuse')]),
+ 	  'lighton': ([k for k in real if light_filter(k, 'lighton')], [k for k in attack if light_filter(k, 'lighton')]),
+	  'lightoff': ([k for k in real if light_filter(k, 'lightoff')], [k for k in attack if light_filter(k, 'lightoff')]),
+          'controlled': ([k for k in real if light_filter(k, 'lightoff')], [k for k in attack if light_filter(k, 'lightoff')]),
+          'adverse': ([k for k in real if light_filter(k, 'adverse')], [k for k in attack if light_filter(k, 'adverse')]),
+	  'direct': ([k for k in real if light_filter(k, 'direct')], [k for k in attack if light_filter(k, 'direct')]),
+          'lateral': ([k for k in real if light_filter(k, 'lateral')], [k for k in attack if light_filter(k, 'lateral')]),
+          'diffuse': ([k for k in real if light_filter(k, 'diffuse')], [k for k in attack if light_filter(k, 'diffuse')]),
           }
-
     elif filter == 'protocol':
       return {
           'print': (real, [k for k in attack if protocol_filter(k, 'print')]),
-          'photo': (real, [k for k in attack if protocol_filter(k, 'photo')]),
-          'digitalphoto': (real, [k for k in attack if protocol_filter(k, 'photo') and not protocol_filter(k, 'print')]),
-          'video': (real, [k for k in attack if protocol_filter(k, 'video')]),
-          }
-    elif filter == 'types':
-      return {
-          'print': (real, [k for k in attack if protocol_filter(k, 'print')]),
-          'photo': (real, [k for k in attack if protocol_filter(k, 'photo')]),
-          'digitalphoto': (real, [k for k in attack if protocol_filter(k, 'photo') and not protocol_filter(k, 'print')]),
-          'video': (real, [k for k in attack if protocol_filter(k, 'video')]),
+          'mattescreen': (real, [k for k in attack if protocol_filter(k, 'mattescreen')]),
           }
 
     raise RuntimeError("filter parameter should specify a valid filter among `%s'" % \
