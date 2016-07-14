@@ -68,10 +68,10 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
 
     dev = db.objects(cls='real', groups='devel')
     #self.assertEqual(len(dev), 120) # Still have to capture 1 users (client009)
-    self.assertEqual(len(dev), 110)
+    self.assertEqual(len(dev), 160)
 
     test = db.objects(cls='real', groups='test')
-    self.assertEqual(len(test), 160)
+    self.assertEqual(len(test), 110)
 
     #tests train, devel and test files are distinct
     s = set(train + dev + test)
@@ -92,10 +92,10 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
     self.assertEqual(len(train), int(round(0.3*N)))
 
     dev = db.objects(cls='attack', groups='devel', protocol=protocol)
-    self.assertEqual(len(dev), int(round(0.3*N)))
+    self.assertEqual(len(dev), int(round(0.4*N)))
 
     test = db.objects(cls='attack', groups='test', protocol=protocol)
-    self.assertEqual(len(test), int(round(0.4*N)))
+    self.assertEqual(len(test), int(round(0.3*N)))
 
     #tests train, devel and test files are distinct
     s = set(train + dev + test)
@@ -183,7 +183,37 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
 
     self.assertEqual(main('replaymobile checkfiles --self-test'.split()), 0)
  
-   
-  
-    
-  
+  @db_available
+  def test13_queryRealAccesses(self):
+      db = Database()
+      trainClients=['001', '003', '008', '011', '012', '016', '018', '020', '026', '034', '037', '038']
+      develClients=['005', '006', '013', '014', '015', '023', '024', '025', '028', '029', '031', '032', '035', '036', '039', '040']
+      testClients =['002', '004', '007', '009', '010', '017', '019', '021', '022', '027', '030', '033']
+      f = db.objects(cls='real')
+      self.assertEqual(len(f), 390)
+
+      train = db.objects(cls='real', groups='train')
+      self.assertEqual(len(train), 120)
+      for cl in train:
+          clFilename = cl.videofile("")
+          clientPos = clFilename.find('client')
+          clientId = clFilename[clientPos+6:clientPos+9]
+          self.assertTrue(clientId in trainClients)
+
+
+      dev = db.objects(cls='real', groups='devel')
+      self.assertEqual(len(dev), 160)
+      for cl in dev:
+          clFilename = cl.videofile("")
+          clientPos = clFilename.find('client')
+          clientId = clFilename[clientPos+6:clientPos+9]
+          self.assertTrue(clientId in develClients)
+
+      test = db.objects(cls='real', groups='test')
+      self.assertEqual(len(test), 110)
+      for cl in test:
+          clFilename = cl.videofile("")
+          clientPos = clFilename.find('client')
+          clientId = clFilename[clientPos+6:clientPos+9]
+          self.assertTrue(clientId in testClients)
+
