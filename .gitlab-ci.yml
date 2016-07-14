@@ -1,0 +1,25 @@
+py27-idiap:
+  script:
+    - git clean -ffdx
+    - export TMPDIR=/var/tmp
+    - python2.7 bootstrap-buildout.py
+    - ./bin/buildout
+    - unset TMPDIR
+    - ./bin/python --version
+    - ./bin/nosetests -sv
+  tags:
+    - lidiap2015
+
+py34-idiap:
+  script:
+    - git clean -ffdx
+    - export TMPDIR=/var/tmp
+    - python3.4 bootstrap-buildout.py
+    - ./bin/buildout
+    - unset TMPDIR
+    - ./bin/python --version
+    - ./bin/nosetests -sv
+  tags:
+    - lidiap2015
+
+
