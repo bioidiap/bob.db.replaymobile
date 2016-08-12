@@ -127,7 +127,8 @@ class File(Base):
     """
 
     if not directory: directory = ''
-    directory = os.path.join(directory, 'face-locations')
+    #directory = os.path.join(directory, 'face-locations')
+    directory = os.path.join(directory, 'faceloc/rect/')
     return self.make_path(directory, '.face')
 
   def bbx(self, directory=None):
@@ -188,7 +189,8 @@ class File(Base):
       raise RuntimeError("%s is not an attack" % self)
     return self.attack[0]
 
-  def load(self, directory=None, extension='.hdf5'):
+  #def load(self, directory=None, extension='.hdf5'):
+  def load(self, directory=None, extension=None):
     """Loads the data at the specified location and using the given extension.
 
     Keyword parameters:
@@ -204,7 +206,31 @@ class File(Base):
       [optional] The extension of the filename - this will control the type of
       output and the codec for saving the input blob.
     """
-    return bob.io.base.load(self.make_path(directory, extension))
+    print 'video file extension:', extension
+    if extension is None:
+        extension = '.mov'
+       # if self.get_quality() == 'laptop':
+       #     extension = '.mov'
+       # else:
+       #     extension = '.mp4'
+
+    if extension == '.mov' or extension == '.mp4':
+        vfilename = self.make_path(directory, extension)
+        video = bob.io.video.reader(vfilename)
+        vin = video.load()
+    else:
+        vin =  bob.io.base.load(self.make_path(directory, extension)) 
+    
+    vin = numpy.rollaxis(vin, 3, 2)
+    if not self.is_tablet():
+        print "flipping mobile video"
+        vin = vin[:, :, ::-1,:]
+
+   # if self.is_rotated():
+   #     vin = vin[:, :, ::-1,:] 
+    
+    return vin
+    #return bob.io.base.load(self.make_path(directory, extension))
 
   def save(self, data, directory=None, extension='.hdf5'):
     """Saves the input data at the specified location and using the given
@@ -353,3 +379,4 @@ class Attack(Base):
 
   def __repr__(self):
     return "<Attack('%s')>" % (self.file.path)
+

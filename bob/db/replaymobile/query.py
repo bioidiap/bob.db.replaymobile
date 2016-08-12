@@ -63,7 +63,7 @@ class Database(object):
 
   def objects(self, support=Attack.attack_support_choices,
       protocol='grandtest', groups=Client.set_choices, cls=('attack', 'real'),
-      light=File.light_choices, clients=None ,device=File.device_choices):
+      light=File.light_choices, clients=None ,device=File.device_choices, sample_type= Attack.sample_type_choices):
     """Returns a list of unique :py:class:`.File` objects for the specific
     query by the user.
 
@@ -102,6 +102,11 @@ class Database(object):
     device
       One of the capture device as returned by device() or a combination
       of the two (in a tuple), which is also the default.
+
+    sample_type
+      type of attack regarding with media displayed on mattescreen attacks. 
+      'photo' refers to a kind of attack that shows and static imagen on a screen. 
+      'video' refers to a attack manufactured presenting a video on a mattescreeen
 
     Returns: A list of :py:class:`.File` objects.
     """
@@ -147,6 +152,10 @@ class Database(object):
     VALID_DEVICES = self.devices()
     device = check_validity(device, "device", VALID_DEVICES, None)
 
+    # checks if the device is valid
+    VALID_SAMPLE_TYPE = self.attack_sample_types()
+    sample_type = check_validity(sample_type, "sample_type", VALID_SAMPLE_TYPE, None)
+
     # now query the database
     retval = []
 
@@ -179,6 +188,7 @@ class Database(object):
       if groups: q = q.filter(Client.set.in_(groups))
       if clients: q = q.filter(Client.id.in_(clients))
       if support: q = q.filter(Attack.attack_support.in_(support))
+      if sample_type: q = q.filter(Attack.sample_type.in_(sample_type))
       if light: q = q.filter(File.light.in_(light))
       if device: q = q.filter(File.device.in_(device))
       q = q.filter(Protocol.name.in_(protocol))

@@ -73,11 +73,12 @@ class Database(antispoofing.utils.db.Database):
     if args is not None:
 
       self.__kwargs = {
-        'protocol': args.replay_protocol,
-        'support' : args.replay_support,
-        'light'   : args.replay_light,
-        'clients' : args.replay_client if args.replay_client else None,
-	'device'  : args.replay_device,
+        'protocol'   : args.replay_protocol,
+        'support'    : args.replay_support,
+        'sample_type': args.replay_sample_types,
+        'light'      : args.replay_light,
+        'clients'    : args.replay_client if args.replay_client else None,
+	'device'     : args.replay_device,
        }
   __init__.__doc__ = antispoofing.utils.db.Database.__init__.__doc__
 
@@ -108,6 +109,10 @@ class Database(antispoofing.utils.db.Database):
     supports = ReplayAttackModel.attack_support_choices
     p.add_argument('--support', type=str, dest='replay_support', choices=supports,
         help="If you would like to select a specific support to be used, use this option (if unset, the default, use all)")
+
+    sample_type = ReplayAttackModel.sample_type_choices
+    p.add_argument('--sample_types', type=str, dest='replay_sample_types', choices=sample_type,
+        help="If you would like to select a specific media (photo or video) to be used, use this option (if unset, the default, use all)")
 
     lights = ReplayFileModel.light_choices
     p.add_argument('--light', type=str, choices=lights, dest='replay_light', help="Types of illumination conditions (if unset, the default, use all)")
