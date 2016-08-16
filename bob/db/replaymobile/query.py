@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Andre Anjos <andre.dos.anjos@gmail.com>
-# Tue 17 May 13:58:09 2011
+# Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
+# Tue 16 Aug 15:47:11 2016
 
 """This module provides the Dataset interface allowing the user to query the
 replay mobile database in the most obvious ways.

@@ -1,6 +1,6 @@
 .. vim: set fileencoding=utf-8 :
-.. @author: Manuel Guenther <Manuel.Guenther@idiap.ch>
-.. @date:   Thu Dec  6 12:28:25 CET 2012
+.. @author:  Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
+.. @date:  Tue 16 Aug 15:47:11 2016
 
 ==============
  User's Guide

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Artur Costa Pazo <artur.costa-pazo@idiap.ch>
-# Fri Nov 13 11:11:11 2015 +0200
+# Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
+# Tue 16 Aug 15:47:11 2016
 #
 # Copyright (C) 2015 Idiap Research Institute, Martigny, Switzerland
 

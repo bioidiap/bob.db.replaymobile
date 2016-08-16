@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Tiago de Freitas Pereira <tiagofrepereira@gmail.com>
-# Tue 01 Oct 2012 16:48:44 CEST
+# Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
+# Tue 16 Aug 15:47:11 2016
 
 """Replay attack database implementation as antispoofing.utils.db.Database"""
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Andre Anjos <andre.dos.anjos@gmail.com>
-# Wed 15 Aug 11:26:11 2012 
+# Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
+# Tue 16 Aug 15:47:11 2016 
 
 """Bob Database Driver entry-point for the Replay Mobile Database
 """
