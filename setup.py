@@ -42,11 +42,6 @@ setup(
       'bob.db': [
         'replaymobile = bob.db.replaymobile.driver:Interface',
       ],
-
-      # antispoofing database declaration
-      'antispoofing.utils.db': [
-        'replaymobile = bob.db.replaymobile.spoofing:Database',
-      ],
     },
 
     classifiers = [
