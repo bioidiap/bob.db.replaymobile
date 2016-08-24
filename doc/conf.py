@@ -217,7 +217,7 @@ autodoc_default_flags = [
 
 # For inter-documentation mapping:
 from bob.extension.utils import link_documentation
-intersphinx_mapping = link_documentation()
+intersphinx_mapping = link_documentation('python', 'bob.db.base')
 
 # We want to remove all private (i.e. _. or __.__) members
 # that are not in the list of accepted functions
