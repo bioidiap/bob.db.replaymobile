@@ -206,7 +206,7 @@ class File(Base):
       [optional] The extension of the filename - this will control the type of
       output and the codec for saving the input blob.
     """
-    print 'video file extension:', extension
+    print('video file extension:', extension)
     if extension is None:
         extension = '.mov'
        # if self.get_quality() == 'laptop':
@@ -223,7 +223,7 @@ class File(Base):
     
     vin = numpy.rollaxis(vin, 3, 2)
     if not self.is_tablet():
-        print "flipping mobile video"
+        print("flipping mobile video")
         vin = vin[:, :, ::-1,:]
 
    # if self.is_rotated():
