@@ -19,10 +19,10 @@ setup(
     name='bob.db.replaymobile',
     version=version,
     description='Replay Mobile Database Access API for Bob',
-    url='http://pypi.python.org/pypi/bob.db.replay',
+    url='http://pypi.python.org/pypi/bob.db.replaymobile',
     license='GPLv3',
-    author='Andre Anjos, Ivana Chingovska',
-    author_email='andre.anjos@idiap.ch, ivana.chingovska@idiap.ch',
+    author='Andre Anjos, Sushil Bhattacharjee',
+    author_email='andre.anjos@idiap.ch, sushil.bhattacharjee@idiap.ch',
     long_description=open('README.rst').read(),
 
     # This line is required for any distutils based packaging.
