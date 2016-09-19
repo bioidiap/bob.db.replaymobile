@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2015 Idiap Research Institute, Martigny, Switzerland
 
-"""This script creates the Replay-Attack database in a single pass.
+"""This script creates the Replay-Mobile database in a single pass.
 """
 
 import os
@@ -14,7 +14,7 @@ import fnmatch
 from .models import *
 
 def add_clients(session, protodir, verbose):
-  """Add clients to the replay attack database."""
+  """Add clients to the Replay-Mobile database."""
 
   for client in open(os.path.join(protodir, 'clients.txt'), 'rt'):
     s = client.strip().split(' ', 2)

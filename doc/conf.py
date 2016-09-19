@@ -111,9 +111,7 @@ pygments_style = 'sphinx'
 
 # Some variables which are useful for generated material
 project_variable = project.replace('.', '_')
-short_description = u'This package is part of the signal-processing and machine learning toolbox
-Bob_. This package provides a Bob interface for the Replay-Mobile database for
-face antispoofing experiments for mobile devices.'
+short_description = u'This package is part of the signal-processing and machine learning toolbox Bob_. This package provides a Bob interface for the Replay-Mobile database for face antispoofing experiments for mobile devices.'
 owner = [u'Idiap Research Institute']
 
 
