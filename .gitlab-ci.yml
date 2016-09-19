@@ -27,8 +27,6 @@ variables:
   stage: build
   before_script:
     - git clean -ffdx
-    - curl --silent "https://gitlab.idiap.ch/bob/bob.admin/raw/master/bootstrap-conda.sh" > bootstrap-conda.sh
-    - chmod 755 ./bootstrap-conda.sh
     - ./bootstrap-conda.sh ${CONDA_FOLDER} ${PYTHON_VER} ${CONDA_PREFIX}
   variables: &build_variables
     BOB_DOCUMENTATION_SERVER: "http://www.idiap.ch/software/bob/docs/latest/bob/%s/master/"
@@ -72,7 +70,7 @@ variables:
   before_script:
     - ./bootstrap-conda.sh ${CONDA_FOLDER} ${PYTHON_VER} ${CONDA_PREFIX}
     - source ${CONDA_FOLDER}/bin/activate ${CONDA_PREFIX}
-    - pip install --use-wheel --pre dist/*.whl
+    - pip install --requirement requirements.txt
   script:
     - cd ${CONDA_PREFIX}
     - python -c "from ${CI_PROJECT_NAME} import get_config; print(get_config())"
