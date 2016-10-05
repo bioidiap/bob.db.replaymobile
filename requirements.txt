@@ -1,5 +1,6 @@
 setuptools
 six
 sqlalchemy
+numpy
 bob.db.base
 bob.io.base
