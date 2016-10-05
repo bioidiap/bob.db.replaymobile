@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
-# Tue 16 Aug 15:47:11 2016
-#
-# Copyright (C) 2015 Idiap Research Institute, Martigny, Switzerland
 
 """Table models and functionality for the Replay Mobile DB.
 """

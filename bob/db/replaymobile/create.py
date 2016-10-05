@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
-# Fri Nov 13 11:11:11 2015 +0200
-#
-# Copyright (C) 2015 Idiap Research Institute, Martigny, Switzerland
 
 """This script creates the Replay-Attack database in a single pass.
 """

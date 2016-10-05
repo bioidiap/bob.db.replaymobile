@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
-# Tue 20 Mar 19:20:22 2012 CET
 
 """Checks for installed files.
 """

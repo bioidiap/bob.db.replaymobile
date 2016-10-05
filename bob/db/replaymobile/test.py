@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
-# Tue 16 Aug 15:47:11 2016
 
 """A few checks at the replay mobile database.
 """
