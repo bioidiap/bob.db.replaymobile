@@ -1,21 +1,23 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
-# Tue 16 Aug 15:47:11 2016
 
 """A few checks at the replay mobile database.
 """
 
-import os, sys
+import os
+import sys
 import unittest
 from .query import Database
 from .models import *
 
 authenticate_str = 'authenticate'
-if sys.version_info[0] < 3: authenticate_str = authenticate_str.encode('utf8')
+if sys.version_info[0] < 3:
+  authenticate_str = authenticate_str.encode('utf8')
 
 enroll_str = 'enroll'
-if sys.version_info[0] < 3: enroll_str = enroll_str.encode('utf8')
+if sys.version_info[0] < 3:
+  enroll_str = enroll_str.encode('utf8')
+
 
 def db_available(test):
   """Decorator for detecting if OpenCV/Python bindings are available"""
@@ -42,9 +44,9 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
 
     db = Database()
     f = db.objects(cls='real')
-    #self.assertEqual(len(f), 400) # Still have to capture 1 users (client009)
-    self.assertEqual(len(f), 390) 
-    for v in f[:10]: #only the 10 first...
+    # self.assertEqual(len(f), 400) # Still have to capture 1 users (client009)
+    self.assertEqual(len(f), 390)
+    for v in f[:10]:  # only the 10 first...
       self.assertTrue(isinstance(v.get_realaccess(), RealAccess))
       o = v.get_realaccess()
       self.assertEqual(o.purpose, authenticate_str)
@@ -53,15 +55,15 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
     self.assertEqual(len(train), 120)
 
     dev = db.objects(cls='real', groups='devel')
-    #self.assertEqual(len(dev), 120) # Still have to capture 1 users (client009)
+    # self.assertEqual(len(dev), 120) # Still have to capture 1 users (client009)
     self.assertEqual(len(dev), 160)
 
     test = db.objects(cls='real', groups='test')
     self.assertEqual(len(test), 110)
 
-    #tests train, devel and test files are distinct
+    # tests train, devel and test files are distinct
     s = set(train + dev + test)
-    #self.assertEqual(len(s), 400) # Still have to capture 1 users (client009)
+    # self.assertEqual(len(s), 400) # Still have to capture 1 users (client009)
     self.assertEqual(len(s), 390)
 
   @db_available
@@ -70,20 +72,20 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
     f = db.objects(cls='attack', protocol=protocol)
 
     self.assertEqual(len(f), N)
-    for k in f[:10]: #only the 10 first...
+    for k in f[:10]:  # only the 10 first...
       k.get_attack()
       self.assertRaises(RuntimeError, k.get_realaccess)
 
     train = db.objects(cls='attack', groups='train', protocol=protocol)
-    self.assertEqual(len(train), int(round(0.3*N)))
+    self.assertEqual(len(train), int(round(0.3 * N)))
 
     dev = db.objects(cls='attack', groups='devel', protocol=protocol)
-    self.assertEqual(len(dev), int(round(0.4*N)))
+    self.assertEqual(len(dev), int(round(0.4 * N)))
 
     test = db.objects(cls='attack', groups='test', protocol=protocol)
-    self.assertEqual(len(test), int(round(0.3*N)))
+    self.assertEqual(len(test), int(round(0.3 * N)))
 
-    #tests train, devel and test files are distinct
+    # tests train, devel and test files are distinct
     s = set(train + dev + test)
     self.assertEqual(len(s), N)
 
@@ -101,13 +103,13 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
   def test04_queryMattescreenAttacks(self):
 
     self.queryAttackType('mattescreen', 320)
-    
-  @db_available  
+
+  @db_available
   def test05_queryEnrollments(self):
 
     db = Database()
     f = db.objects(cls='enroll')
-    self.assertEqual(len(f), 160) #40 clients, 2 conditions 2 devices
+    self.assertEqual(len(f), 160)  # 40 clients, 2 conditions 2 devices
     for v in f:
       self.assertEqual(v.get_realaccess().purpose, enroll_str)
 
@@ -116,7 +118,7 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
 
     db = Database()
     f = db.clients()
-    self.assertEqual(len(f), 40) #40 clients
+    self.assertEqual(len(f), 40)  # 40 clients
     self.assertTrue(db.has_client_id(3))
     self.assertTrue(db.has_client_id(40))
     self.assertTrue(db.has_client_id(6))
@@ -168,13 +170,13 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
     from bob.db.base.script.dbmanage import main
 
     self.assertEqual(main('replaymobile checkfiles --self-test'.split()), 0)
- 
+
   @db_available
   def test13_queryRealAccesses(self):
       db = Database()
-      trainClients=['001', '003', '008', '011', '012', '016', '018', '020', '026', '034', '037', '038']
-      develClients=['005', '006', '013', '014', '015', '023', '024', '025', '028', '029', '031', '032', '035', '036', '039', '040']
-      testClients =['002', '004', '007', '009', '010', '017', '019', '021', '022', '027', '030', '033']
+      trainClients = ['001', '003', '008', '011', '012', '016', '018', '020', '026', '034', '037', '038']
+      develClients = ['005', '006', '013', '014', '015', '023', '024', '025', '028', '029', '031', '032', '035', '036', '039', '040']
+      testClients = ['002', '004', '007', '009', '010', '017', '019', '021', '022', '027', '030', '033']
       f = db.objects(cls='real')
       self.assertEqual(len(f), 390)
 
@@ -183,16 +185,15 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
       for cl in train:
           clFilename = cl.videofile("")
           clientPos = clFilename.find('client')
-          clientId = clFilename[clientPos+6:clientPos+9]
+          clientId = clFilename[clientPos + 6:clientPos + 9]
           self.assertTrue(clientId in trainClients)
-
 
       dev = db.objects(cls='real', groups='devel')
       self.assertEqual(len(dev), 160)
       for cl in dev:
           clFilename = cl.videofile("")
           clientPos = clFilename.find('client')
-          clientId = clFilename[clientPos+6:clientPos+9]
+          clientId = clFilename[clientPos + 6:clientPos + 9]
           self.assertTrue(clientId in develClients)
 
       test = db.objects(cls='real', groups='test')
@@ -200,6 +201,5 @@ class ReplayMobileDatabaseTest(unittest.TestCase):
       for cl in test:
           clFilename = cl.videofile("")
           clientPos = clFilename.find('client')
-          clientId = clFilename[clientPos+6:clientPos+9]
+          clientId = clFilename[clientPos + 6:clientPos + 9]
           self.assertTrue(clientId in testClients)
-

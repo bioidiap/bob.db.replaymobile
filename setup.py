@@ -30,21 +30,21 @@ setup(
     include_package_data=True,
     zip_safe=False,
 
-    install_requires = install_requires,
+    install_requires=install_requires,
 
-    namespace_packages = [
+    namespace_packages=[
       'bob',
       'bob.db',
     ],
 
-    entry_points = {
+    entry_points={
       # bob database declaration
       'bob.db': [
         'replaymobile = bob.db.replaymobile.driver:Interface',
       ],
     },
 
-    classifiers = [
+    classifiers=[
       'Framework :: Bob',
       'Development Status :: 4 - Beta',
       'Intended Audience :: Science/Research',

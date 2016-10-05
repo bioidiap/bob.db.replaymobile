@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
-# Tue 16 Aug 15:47:11 2016
-#
-# Copyright (C) 2015 Idiap Research Institute, Martigny, Switzerland
 
 """Table models and functionality for the Replay Mobile DB.
 """
 
-import sqlalchemy
 import os
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from bob.db.base.sqlalchemy_migration import Enum, relationship
@@ -19,6 +14,7 @@ import numpy
 import bob
 
 Base = declarative_base()
+
 
 class Client(Base):
   """Database clients, marked by an integer identifier and the set they belong
@@ -42,21 +38,22 @@ class Client(Base):
   def __repr__(self):
     return "Client('%s', '%s')" % (self.id, self.set)
 
+
 class File(Base):
   """Generic file container"""
 
   __tablename__ = 'file'
 
-  light_choices = ('lighton','lightoff','controlled', 'adverse','direct','lateral','diffuse')
+  light_choices = ('lighton', 'lightoff', 'controlled', 'adverse', 'direct', 'lateral', 'diffuse')
   """List of illumination conditions for data taking"""
 
-  device_choices = ('mobile','tablet')
+  device_choices = ('mobile', 'tablet')
   """List of devices"""
 
   id = Column(Integer, primary_key=True)
   """Key identifier for files"""
 
-  client_id = Column(Integer, ForeignKey('client.id')) # for SQL
+  client_id = Column(Integer, ForeignKey('client.id'))  # for SQL
   """The client identifier to which this file is bound to"""
 
   path = Column(String(100), unique=True)
@@ -72,7 +69,7 @@ class File(Base):
   client = relationship(Client, backref=backref('files', order_by=id))
   """A direct link to the client object that this file belongs to"""
 
-  def __init__(self, client, path, light,device):
+  def __init__(self, client, path, light, device):
     self.client = client
     self.path = path
     self.light = light
@@ -97,8 +94,10 @@ class File(Base):
     Returns a string containing the newly generated file path.
     """
 
-    if not directory: directory = ''
-    if not extension: extension = ''
+    if not directory:
+      directory = ''
+    if not extension:
+      extension = ''
 
     return str(os.path.join(directory, self.path + extension))
 
@@ -126,8 +125,9 @@ class File(Base):
     Returns a string containing the face file path.
     """
 
-    if not directory: directory = ''
-    #directory = os.path.join(directory, 'face-locations')
+    if not directory:
+      directory = ''
+    # directory = os.path.join(directory, 'face-locations')
     directory = os.path.join(directory, 'faceloc/rect/')
     return self.make_path(directory, '.face')
 
@@ -166,14 +166,14 @@ class File(Base):
   def is_mobile(self):
     """True if the video file is originally recorded with mobile device, False otherwise """
     value = False
-    if self.device=='mobile':
+    if self.device == 'mobile':
       value = True
     return value
 
   def is_tablet(self):
     """True if the video file is originally recorded rotated by 270 degrees, False otherwise """
     value = False
-    if self.device=='tablet':
+    if self.device == 'tablet':
       value = True
     return value
 
@@ -189,7 +189,7 @@ class File(Base):
       raise RuntimeError("%s is not an attack" % self)
     return self.attack[0]
 
-  #def load(self, directory=None, extension='.hdf5'):
+  # def load(self, directory=None, extension='.hdf5'):
   def load(self, directory=None, extension=None):
     """Loads the data at the specified location and using the given extension.
 
@@ -219,18 +219,18 @@ class File(Base):
         video = bob.io.video.reader(vfilename)
         vin = video.load()
     else:
-        vin =  bob.io.base.load(self.make_path(directory, extension)) 
-    
+        vin = bob.io.base.load(self.make_path(directory, extension))
+
     vin = numpy.rollaxis(vin, 3, 2)
     if not self.is_tablet():
         print("flipping mobile video")
-        vin = vin[:, :, ::-1,:]
+        vin = vin[:, :, ::-1, :]
 
    # if self.is_rotated():
-   #     vin = vin[:, :, ::-1,:] 
-    
+   #     vin = vin[:, :, ::-1,:]
+
     return vin
-    #return bob.io.base.load(self.make_path(directory, extension))
+    # return bob.io.base.load(self.make_path(directory, extension))
 
   def save(self, data, directory=None, extension='.hdf5'):
     """Saves the input data at the specified location and using the given
@@ -254,17 +254,19 @@ class File(Base):
     bob.io.base.create_directories_safe(os.path.dirname(path))
     bob.io.base.save(data, path)
 
+
 # Intermediate mapping from RealAccess's to Protocol's
 realaccesses_protocols = Table('realaccesses_protocols', Base.metadata,
-    Column('realaccess_id', Integer, ForeignKey('realaccess.id')),
-    Column('protocol_id', Integer, ForeignKey('protocol.id')),
-    )
+                               Column('realaccess_id', Integer, ForeignKey('realaccess.id')),
+                               Column('protocol_id', Integer, ForeignKey('protocol.id')),
+                               )
 
 # Intermediate mapping from Attack's to Protocol's
 attacks_protocols = Table('attacks_protocols', Base.metadata,
-    Column('attack_id', Integer, ForeignKey('attack.id')),
-    Column('protocol_id', Integer, ForeignKey('protocol.id')),
-    )
+                          Column('attack_id', Integer, ForeignKey('attack.id')),
+                          Column('protocol_id', Integer, ForeignKey('protocol.id')),
+                          )
+
 
 class Protocol(Base):
   """Replay mobile protocol"""
@@ -283,6 +285,7 @@ class Protocol(Base):
   def __repr__(self):
     return "Protocol('%s')" % (self.name,)
 
+
 class RealAccess(Base):
   """Defines Real-Accesses (licit attempts to authenticate)"""
 
@@ -291,13 +294,13 @@ class RealAccess(Base):
   purpose_choices = ('authenticate', 'enroll')
   """Types of purpose for this video"""
 
-  type_device = ('mobile','tablet')
+  type_device = ('mobile', 'tablet')
   """List of devices"""
 
   id = Column(Integer, primary_key=True)
   """Unique identifier for this real-access object"""
 
-  file_id = Column(Integer, ForeignKey('file.id')) # for SQL
+  file_id = Column(Integer, ForeignKey('file.id'))  # for SQL
   """The file identifier the current real-access is bound to"""
 
   purpose = Column(Enum(*purpose_choices))
@@ -306,7 +309,7 @@ class RealAccess(Base):
   device = Column(Enum(*type_device))
   """The devices"""
 
-  #take = Column(Integer)
+  # take = Column(Integer)
   """Take number"""
 
   # for Python
@@ -314,18 +317,19 @@ class RealAccess(Base):
   """A direct link to the :py:class:`.File` object this real-access belongs to"""
 
   protocols = relationship("Protocol", secondary=realaccesses_protocols,
-      backref='realaccesses')
+                           backref='realaccesses')
   """A direct link to the protocols this file is linked to"""
 
-  #def __init__(self, file, purpose, take,device):
-  def __init__(self, file, purpose,device):
+  # def __init__(self, file, purpose, take,device):
+  def __init__(self, file, purpose, device):
     self.file = file
     self.purpose = purpose
-    #self.take = take
+    # self.take = take
     self.device = device
 
   def __repr__(self):
     return "RealAccess('%s')" % (self.file.path)
+
 
 class Attack(Base):
   """Defines Spoofing Attacks (illicit attempts to authenticate)"""
@@ -341,13 +345,13 @@ class Attack(Base):
   sample_type_choices = ('video', 'photo')
   """Original sample type"""
 
-  type_device = ('mobile','tablet')
+  type_device = ('mobile', 'tablet')
   """List of devices"""
 
   id = Column(Integer, primary_key=True)
   """Unique identifier for this attack"""
 
-  file_id = Column(Integer, ForeignKey('file.id')) # for SQL
+  file_id = Column(Integer, ForeignKey('file.id'))  # for SQL
   """The file identifier this attack is linked to"""
 
   attack_support = Column(Enum(*attack_support_choices))
@@ -367,7 +371,7 @@ class Attack(Base):
   """A direct link to the :py:class:`.File` object bound to this attack"""
 
   protocols = relationship("Protocol", secondary=attacks_protocols,
-      backref='attacks')
+                           backref='attacks')
   """A direct link to the protocols this file is linked to"""
 
   def __init__(self, file, attack_support, attack_device, sample_type, sample_device):
@@ -379,4 +383,3 @@ class Attack(Base):
 
   def __repr__(self):
     return "<Attack('%s')>" % (self.file.path)
-

@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Sushil Bhattacharjee <sushil.bhattacharjee@idiap.ch>
-# Tue 16 Aug 15:47:11 2016 
 
 """Bob Database Driver entry-point for the Replay Mobile Database
 """
 
-import os
 import sys
 from bob.db.base.driver import Interface as BaseInterface
+
 
 def reverse(args):
   """Returns a list of file database identifiers given the path stems"""
@@ -22,11 +20,14 @@ def reverse(args):
     output = null()
 
   r = db.reverse(args.path)
-  for id in r: output.write('%d\n' % id)
-  
-  if not r: return 1
+  for id in r:
+    output.write('%d\n' % id)
+
+  if not r:
+    return 1
 
   return 0
+
 
 def reverse_command(subparsers):
   """Adds the specific options for the reverse command"""
@@ -37,9 +38,10 @@ def reverse_command(subparsers):
 
   parser.add_argument('path', nargs='+', type=str, help="one or more path stems to look up. If you provide more than one, files which cannot be reversed will be omitted from the output.")
   parser.add_argument('--self-test', dest="selftest", default=False,
-      action='store_true', help=SUPPRESS)
+                      action='store_true', help=SUPPRESS)
 
-  parser.set_defaults(func=reverse) #action
+  parser.set_defaults(func=reverse)  # action
+
 
 def path(args):
   """Returns a list of fully formed paths or stems given some file id"""
@@ -53,11 +55,14 @@ def path(args):
     output = null()
 
   r = db.paths(args.id, prefix=args.directory, suffix=args.extension)
-  for path in r: output.write('%s\n' % path)
+  for path in r:
+    output.write('%s\n' % path)
 
-  if not r: return 1
+  if not r:
+    return 1
 
   return 0
+
 
 def path_command(subparsers):
   """Adds the specific options for the path command"""
@@ -70,9 +75,10 @@ def path_command(subparsers):
   parser.add_argument('-e', '--extension', dest="extension", default='', help="if given, this extension will be appended to every entry returned (defaults to '%(default)s')")
   parser.add_argument('id', nargs='+', type=int, help="one or more file ids to look up. If you provide more than one, files which cannot be found will be omitted from the output. If you provide a single id to lookup, an error message will be printed if the id does not exist in the database. The exit status will be non-zero in such case.")
   parser.add_argument('--self-test', dest="selftest", default=False,
-      action='store_true', help=SUPPRESS)
+                      action='store_true', help=SUPPRESS)
 
-  parser.set_defaults(func=path) #action
+  parser.set_defaults(func=path)  # action
+
 
 class Interface(BaseInterface):
 
@@ -95,9 +101,9 @@ class Interface(BaseInterface):
   def add_commands(self, parser):
 
     from . import __doc__ as docs
-    
-    subparsers = self.setup_parser(parser, 
-        "Photo/Video Replay mobile database", docs)
+
+    subparsers = self.setup_parser(parser,
+                                   "Photo/Video Replay mobile database", docs)
 
     # get the "create" action from a submodule
     from .create import add_command as create_command

@@ -21,7 +21,7 @@
 
 This package is part of the signal-processing and machine learning toolbox
 Bob_. This package provides a Bob interface for the Replay-Mobile database for
-face antispoofing experiments for mobile devices.
+face presentation attack (antispoofing) experiments for mobile devices.
 
 
 Installation
