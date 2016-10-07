@@ -58,8 +58,8 @@ class Database(BaseDatabase):
         self._db = LDatabase()
 
         self.max_number_of_frames = max_number_of_frames or 10
-        # 300 is the number of frames in replay mobile videos
-        self.indices = selected_indices(300, max_number_of_frames)
+        # 240 is the guaranteed number of frames in replay mobile videos
+        self.indices = selected_indices(240, max_number_of_frames)
         self.low_level_group_names = ('train', 'devel', 'test')
         self.high_level_group_names = ('world', 'dev', 'eval')
 
