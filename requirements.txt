@@ -4,3 +4,4 @@ sqlalchemy
 numpy
 bob.db.base
 bob.io.base
+bob.io.video
