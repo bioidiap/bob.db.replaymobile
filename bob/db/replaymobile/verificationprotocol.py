@@ -8,6 +8,7 @@ framework). It also implements a kind of hack so that you can run
 vulnerability analysis with it. """
 
 from bob.db.base import File as BaseFile
+from bob.db.base import Database as BaseDatabase
 from .query import Database as LDatabase
 
 
@@ -41,7 +42,7 @@ class File(BaseFile):
             return super(File, self).load(directory, extension)
 
 
-class Database(LDatabase):
+class Database(BaseDatabase):
     """
     Implements verification API for querying Replay Mobile database.
     This database loads max_number_of_frames from the video files as
@@ -51,8 +52,10 @@ class Database(LDatabase):
     __doc__ = __doc__
 
     def __init__(self, max_number_of_frames=None):
-        # call base class constructors to open a session to the database
         super(Database, self).__init__()
+
+        # call base class constructors to open a session to the database
+        self._db = LDatabase()
 
         self.max_number_of_frames = max_number_of_frames or 10
         # 300 is the number of frames in replay mobile videos
@@ -65,23 +68,13 @@ class Database(LDatabase):
         Here I am going to hack and double the number of protocols
         with -licit and -spoof. This is done for running vulnerability
         analysis"""
-        names = [p.name + '-licit' for p in super(Database, self).protocols()]
-        names += [p.name + '-spoof' for p in super(Database, self).protocols()]
+        names = [p.name + '-licit' for p in self._db.protocols()]
+        names += [p.name + '-spoof' for p in self._db.protocols()]
         return names
 
     def groups(self):
         return self.convert_names_to_highlevel(
-            super(Database, self).groups(), self.low_level_group_names, self.high_level_group_names)
-
-    def annotations(self, myfile):
-        """Will return the bounding box annotation of nth frame of the video."""
-        fn = myfile.framen  # 10th frame number
-        annots = myfile._f.bbx(directory=self.original_directory)
-        # bob uses the (y, x) format
-        topleft = (annots[fn][2], annots[fn][1])
-        bottomright = (annots[fn][2] + annots[fn][4], annots[fn][1] + annots[fn][3])
-        annotations = {'topleft': topleft, 'bottomright': bottomright}
-        return annotations
+            self._db.groups(), self.low_level_group_names, self.high_level_group_names)
 
     def model_ids_with_protocol(self, groups=None, protocol=None, **kwargs):
         # since the low-level API does not support verification straight-forward-ly, we improvise.
@@ -128,7 +121,7 @@ class Database(LDatabase):
                 purposes.append('attack')
 
         # now, query the actual Replay database
-        objects = super(Database, self).objects(groups=groups, protocol=protocol, cls=purposes, clients=model_ids, **kwargs)
+        objects = self._db.objects(groups=groups, protocol=protocol, cls=purposes, clients=model_ids, **kwargs)
 
         # make sure to return File representation of a file, not the database one
         # also make sure you replace client ids with attack
