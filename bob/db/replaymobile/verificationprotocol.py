@@ -35,9 +35,13 @@ class File(BaseFile):
 
     def load(self, directory=None, extension=None):
         if extension in (None, '.mov'):
-            video = self._f.load(directory, extension)
-            # just return the required frame.
-            return video[self.framen]
+            for i in range(100):
+                try:
+                    video = self._f.load(directory, extension)
+                    # just return the required frame.
+                    return video[self.framen]
+                except RuntimeError:
+                    pass
         else:
             return super(File, self).load(directory, extension)
 

@@ -12,6 +12,9 @@ from sqlalchemy.ext.declarative import declarative_base
 import numpy
 import bob.io.base
 import bob.io.video
+import bob.core
+
+logger = bob.core.log.setup('bob.db.replaymobile')
 
 Base = declarative_base()
 
@@ -206,7 +209,7 @@ class File(Base):
       [optional] The extension of the filename - this will control the type of
       output and the codec for saving the input blob.
     """
-    print('video file extension:', extension)
+    logger.debug('video file extension: {}'.format(extension))
     if extension is None:
         extension = '.mov'
        # if self.get_quality() == 'laptop':
@@ -223,7 +226,7 @@ class File(Base):
 
     vin = numpy.rollaxis(vin, 3, 2)
     if not self.is_tablet():
-        print("flipping mobile video")
+        logger.debug('flipping mobile video')
         vin = vin[:, :, ::-1, :]
 
    # if self.is_rotated():
