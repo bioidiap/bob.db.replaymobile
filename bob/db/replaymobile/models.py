@@ -7,11 +7,11 @@
 import os
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from bob.db.base.sqlalchemy_migration import Enum, relationship
-import bob.db.base.utils
 from sqlalchemy.orm import backref
 from sqlalchemy.ext.declarative import declarative_base
 import numpy
-import bob
+import bob.io.base
+import bob.io.video
 
 Base = declarative_base()
 
