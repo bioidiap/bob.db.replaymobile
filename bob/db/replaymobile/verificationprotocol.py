@@ -13,17 +13,28 @@ from .query import Database as LDatabase
 
 
 def selected_indices(total_number_of_indices, desired_number_of_indices=None):
-  """Returns a list of indices that will contain exactly the number of desired indices (or the number of total items in the list, if this is smaller).
-  These indices are selected such that they are evenly spread over the whole sequence."""
-  if desired_number_of_indices is None or desired_number_of_indices >= total_number_of_indices or desired_number_of_indices < 0:
-    return range(total_number_of_indices)
-  increase = float(total_number_of_indices) / float(desired_number_of_indices)
-  # generate a regular quasi-random index list
-  return [int((i + .5) * increase) for i in range(desired_number_of_indices)]
+    """
+    Returns a list of indices that will contain exactly the number of desired
+    indices (or the number of total items in the list, if this is smaller).
+    These indices are selected such that they are evenly spread over the whole
+    sequence.
+    """
+
+    if desired_number_of_indices is None or \
+            desired_number_of_indices >= total_number_of_indices or \
+            desired_number_of_indices < 0:
+        return range(total_number_of_indices)
+    increase = float(total_number_of_indices) / \
+        float(desired_number_of_indices)
+    # generate a regular quasi-random index list
+    return [int((i + .5) * increase) for i in range(desired_number_of_indices)]
 
 
 class File(BaseFile):
-    """Replay Mobile low-level file used for vulnerability analysis in face recognition"""
+    """
+    Replay Mobile low-level file used for vulnerability analysis in face
+    recognition
+    """
 
     def __init__(self, f, framen=None):
         self._f = f
@@ -78,19 +89,26 @@ class Database(BaseDatabase):
 
     def groups(self):
         return self.convert_names_to_highlevel(
-            self._db.groups(), self.low_level_group_names, self.high_level_group_names)
+            self._db.groups(), self.low_level_group_names,
+            self.high_level_group_names)
 
     def model_ids_with_protocol(self, groups=None, protocol=None, **kwargs):
-        # since the low-level API does not support verification straight-forward-ly, we improvise.
-        files = self.objects(groups=groups, protocol=protocol, purposes='enroll', **kwargs)
+        # since the low-level API does not support verification
+        # straight-forward-ly, we improvise.
+        files = self.objects(groups=groups, protocol=protocol,
+                             purposes='enroll', **kwargs)
         return sorted(set(f.client_id for f in files))
 
-    def objects(self, groups=None, protocol=None, purposes=None, model_ids=None, **kwargs):
+    def objects(self, groups=None, protocol=None, purposes=None,
+                model_ids=None, **kwargs):
         if protocol == '.':
             protocol = None
-        protocol = self.check_parameter_for_validity(protocol, "protocol", self.protocol_names(), 'grandtest-licit')
-        groups = self.check_parameters_for_validity(groups, "group", self.groups(), self.groups())
-        purposes = self.check_parameters_for_validity(purposes, "purpose", ('enroll', 'probe'), ('enroll', 'probe'))
+        protocol = self.check_parameter_for_validity(
+            protocol, "protocol", self.protocol_names(), 'grandtest-licit')
+        groups = self.check_parameters_for_validity(
+            groups, "group", self.groups(), self.groups())
+        purposes = self.check_parameters_for_validity(
+            purposes, "purpose", ('enroll', 'probe'), ('enroll', 'probe'))
         purposes = list(purposes)
         groups = self.convert_names_to_lowlevel(
             groups, self.low_level_group_names, self.high_level_group_names)
@@ -107,28 +125,32 @@ class Database(BaseDatabase):
                 purposes.remove('probe')
                 purposes.append('real')
                 if len(purposes) == 1:
-                    # making the model_ids to None will return all clients which make
-                    # the impostor data also available.
+                    # making the model_ids to None will return all clients
+                    # which make the impostor data also available.
                     model_ids = None
                 elif model_ids:
                     raise NotImplementedError(
-                       'Currently returning both enroll and probe for specific '
-                       'client(s) in the licit protocol is not supported. '
-                       'Please specify one purpose only.')
+                        'Currently returning both enroll and probe for '
+                        'specific client(s) in the licit protocol is not '
+                        'supported. Please specify one purpose only.')
+
         elif '-spoof' in protocol:
             protocol = protocol.replace('-spoof', '')
-            # you need to replace probe with attack and real for the spoof protocols.
-            # You can add the real here also to create positives scores also
-            # but usually you get these scores when you run the licit protocol
+            # you need to replace probe with attack and real for the spoof
+            # protocols. You can add the real here also to create positives
+            # scores also but usually you get these scores when you run the
+            # licit protocol
             if 'probe' in purposes:
                 purposes.remove('probe')
                 purposes.append('attack')
 
         # now, query the actual Replay database
-        objects = self._db.objects(groups=groups, protocol=protocol, cls=purposes, clients=model_ids, **kwargs)
+        objects = self._db.objects(
+            groups=groups, protocol=protocol, cls=purposes, clients=model_ids,
+            **kwargs)
 
-        # make sure to return File representation of a file, not the database one
-        # also make sure you replace client ids with attack
+        # make sure to return File representation of a file, not the database
+        # one also make sure you replace client ids with attack
         retval = []
         for f in objects:
             for i in self.indices:
@@ -136,6 +158,8 @@ class Database(BaseDatabase):
                     retval.append(File(f, i))
                 else:
                     temp = File(f, i)
-                    temp.client_id = 'attack'
+                    attack = f.get_attack()
+                    temp.client_id = 'attack/{}'.format(
+                        attack.attack_device, attack.attack_support)
                     retval.append(temp)
         return retval
