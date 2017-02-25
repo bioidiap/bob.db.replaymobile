@@ -5,8 +5,8 @@
    :target: http://pythonhosted.org/bob.db.replaymobile/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.svg
    :target: https://www.idiap.ch/software/bob/docs/latest/bioidiap/bob.db.replaymobile/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.db.replaymobile/badges/v1.1.1/build.svg
-   :target: https://gitlab.idiap.ch/bob/bob.db.replaymobile/commits/v1.1.1
+.. image:: https://gitlab.idiap.ch/bob/bob.db.replaymobile/badges/master/build.svg
+   :target: https://gitlab.idiap.ch/bob/bob.db.replaymobile/commits/master
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.db.replaymobile
 .. image:: http://img.shields.io/pypi/v/bob.db.replaymobile.svg
