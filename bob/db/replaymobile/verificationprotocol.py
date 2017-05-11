@@ -8,7 +8,7 @@ framework). It also implements a kind of hack so that you can run
 vulnerability analysis with it. """
 
 from bob.db.base import File as BaseFile
-from bob.db.base import Database as BaseDatabase
+from bob.db.base import FileDatabase as BaseDatabase
 from .query import Database as LDatabase
 
 
@@ -66,8 +66,8 @@ class Database(BaseDatabase):
     """
     __doc__ = __doc__
 
-    def __init__(self, max_number_of_frames=None):
-        super(Database, self).__init__()
+    def __init__(self, max_number_of_frames=None, original_directory=None, original_extension=None):
+        super(Database, self).__init__(original_directory, original_extension)
 
         # call base class constructors to open a session to the database
         self._db = LDatabase()
