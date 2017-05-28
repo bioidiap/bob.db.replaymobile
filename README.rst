@@ -7,6 +7,8 @@
    :target: https://www.idiap.ch/software/bob/docs/latest/bioidiap/bob.db.replaymobile/master/index.html
 .. image:: https://gitlab.idiap.ch/bob/bob.db.replaymobile/badges/master/build.svg
    :target: https://gitlab.idiap.ch/bob/bob.db.replaymobile/commits/master
+.. image:: https://gitlab.idiap.ch/bob/bob.db.replaymobile/badges/master/coverage.svg
+   :target: https://gitlab.idiap.ch/bob/bob.db.replaymobile/commits/master
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.db.replaymobile
 .. image:: http://img.shields.io/pypi/v/bob.db.replaymobile.svg
@@ -27,11 +29,10 @@ face presentation attack (antispoofing) experiments for mobile devices.
 Installation
 ------------
 
-Follow our `installation`_ instructions. Then, using the Python interpreter
-provided by the distribution, bootstrap and buildout this package::
+Complete Bob's `installation`_ instructions. Then, to install this pacakge,
+run::
 
-  $ python bootstrap-buildout.py
-  $ ./bin/buildout
+  $ conda install bob.db.replaymobile
 
 
 Contact
