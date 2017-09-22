@@ -1,14 +1,14 @@
 .. vim: set fileencoding=utf-8 :
 .. Tue 16 Aug 16:18:43 CEST 2016
 
-.. image:: http://img.shields.io/badge/docs-v1.1.3-yellow.svg
-   :target: https://www.idiap.ch/software/bob/docs/bob/bob.db.replaymobile/v1.1.3/index.html
+.. image:: http://img.shields.io/badge/docs-stable-yellow.svg
+   :target: https://www.idiap.ch/software/bob/docs/bob/bob.db.replaymobile/stable/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.svg
    :target: https://www.idiap.ch/software/bob/docs/bioidiap/bob.db.replaymobile/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.db.replaymobile/badges/v1.1.3/build.svg
-   :target: https://gitlab.idiap.ch/bob/bob.db.replaymobile/commits/v1.1.3
-.. image:: https://gitlab.idiap.ch/bob/bob.db.replaymobile/badges/v1.1.3/coverage.svg
-   :target: https://gitlab.idiap.ch/bob/bob.db.replaymobile/commits/v1.1.3
+.. image:: https://gitlab.idiap.ch/bob/bob.db.replaymobile/badges/master/build.svg
+   :target: https://gitlab.idiap.ch/bob/bob.db.replaymobile/commits/master
+.. image:: https://gitlab.idiap.ch/bob/bob.db.replaymobile/badges/master/coverage.svg
+   :target: https://gitlab.idiap.ch/bob/bob.db.replaymobile/commits/master
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.db.replaymobile
 .. image:: http://img.shields.io/pypi/v/bob.db.replaymobile.svg
