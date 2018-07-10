@@ -35,10 +35,7 @@ class Database(Database):
         #   which might fail in some conditions, e.g., when this destructor is called during the exit of the python interpreter
         self.session.close()
         self.session.bind.dispose()
-      except TypeError:
-        # ... I can just ignore the according exception...
-        pass
-      except AttributeError:
+      except Exception:
         pass
 
   def connect(self):
