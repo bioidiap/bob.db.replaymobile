@@ -18,6 +18,9 @@ logger = bob.core.log.setup('bob.db.replaymobile')
 
 Base = declarative_base()
 
+flip_file_list = ['client008_session02_authenticate_tablet_adverse', 'client008_session02_authenticate_tablet_controlled']
+flip_client_list = [8]
+
 
 class Client(Base):
   """Database clients, marked by an integer identifier and the set they belong
@@ -228,6 +231,14 @@ class File(Base):
     if not self.is_tablet():
         logger.debug('flipping mobile video')
         vin = vin[:, :, ::-1, :]
+    else:
+        if self.client.id in flip_client_list:
+            for mfn in flip_file_list:
+                if mfn in vfilename:
+                    logger.debug('flipping tablet video')
+                    vin = vin[:, :, ::-1, :]
+
+
 
    # if self.is_rotated():
    #     vin = vin[:, :, ::-1,:]
