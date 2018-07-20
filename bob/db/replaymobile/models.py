@@ -162,7 +162,17 @@ class File(Base):
       Note that **not** all the frames may contain detected faces.
     """
 
-    return numpy.loadtxt(self.facefile(directory), dtype=int)
+    bbx =  numpy.loadtxt(self.facefile(directory), dtype=int)
+    if self.client.id in flip_client_list:
+        if self.is_tablet():
+            print(self.path)
+            for mfn in flip_file_list:
+                if mfn in self.path:
+                    print('flipping  bbx')
+                    for i in range(bbx.shape[0]):
+                        bbx[i][1] = 1280 - (bbx[i][1]+bbx[i][3]) # correct the y-coord. of the top-left corner of bbx in this frame. 
+    return bbx
+
 
   def is_real(self):
     """Returns True if this file belongs to a real access, False otherwise"""
@@ -234,7 +244,7 @@ class File(Base):
     else:
         if self.client.id in flip_client_list:
             for mfn in flip_file_list:
-                if mfn in vfilename:
+                if mfn in self.path:
                     logger.debug('flipping tablet video')
                     vin = vin[:, :, ::-1, :]
 
