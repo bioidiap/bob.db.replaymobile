@@ -52,10 +52,15 @@ def replaymobile_frames(lowlevelfile, original_directory):
   vfilename = lowlevelfile.make_path(
       directory=original_directory,
       extension='.mov')
-  is_not_tablet = not lowlevelfile.is_tablet()
+  should_flip = not lowlevelfile.is_tablet()
+  if not should_flip:
+    if lowlevelfile.client.id in flip_client_list:
+      for mfn in flip_file_list:
+        if mfn in lowlevelfile.path:
+          should_flip = True
   for frame in reader(vfilename):
     frame = numpy.rollaxis(frame, 2, 1)
-    if is_not_tablet:
+    if should_flip:
       frame = frame[:, ::-1, :]
     yield frame
 
