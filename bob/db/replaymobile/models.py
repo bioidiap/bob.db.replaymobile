@@ -22,6 +22,8 @@ logger = bob.core.log.setup('bob.db.replaymobile')
 Base = declarative_base()
 
 REPLAYMOBILE_FRAME_SHAPE = (3, 1280, 720)
+flip_file_list = ['client008_session02_authenticate_tablet_adverse', 'client008_session02_authenticate_tablet_controlled']
+flip_client_list = [8]
 
 
 def replaymobile_annotations(lowlevelfile, original_directory):
@@ -175,7 +177,16 @@ class File(Base, BaseFile):
       Note that **not** all the frames may contain detected faces.
     """
 
-    return numpy.loadtxt(self.facefile(directory), dtype=int)
+    bbx = numpy.loadtxt(self.facefile(directory), dtype=int)
+    if self.client.id in flip_client_list:
+      if self.is_tablet():
+        logger.debug(self.path)
+        for mfn in flip_file_list:
+          if mfn in self.path:
+            logger.debug('flipping  bbx')
+            for i in range(bbx.shape[0]):
+              bbx[i][1] = 1280 - (bbx[i][1] + bbx[i][3])  # correct the y-coord. of the top-left corner of bbx in this frame.
+    return bbx
 
   def is_real(self):
     """Returns True if this file belongs to a real access, False otherwise"""
@@ -240,6 +251,12 @@ class File(Base, BaseFile):
     if not self.is_tablet():
       logger.debug('flipping mobile video')
       vin = vin[:, :, ::-1, :]
+    else:
+      if self.client.id in flip_client_list:
+        for mfn in flip_file_list:
+          if mfn in self.path:
+            logger.debug('flipping tablet video')
+            vin = vin[:, :, ::-1, :]
 
     return vin
 
