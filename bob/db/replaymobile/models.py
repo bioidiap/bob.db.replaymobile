@@ -13,10 +13,49 @@ import numpy
 import bob.io.base
 import bob.io.video
 import bob.core
+from bob.db.base.annotations import read_annotation_file
+from bob.db.base import File as BaseFile
+from bob.io.video import reader
 
 logger = bob.core.log.setup('bob.db.replaymobile')
 
 Base = declarative_base()
+
+REPLAYMOBILE_FRAME_SHAPE = (3, 1280, 720)
+
+
+def replaymobile_annotations(lowlevelfile, original_directory):
+  # numpy array containing the face bounding box data for each video
+  # frame, returned data format described in the f.bbx() method of the
+  # low level interface
+  annots = lowlevelfile.bbx(directory=original_directory)
+
+  annotations = {}  # dictionary to return
+
+  for fn, frame_annots in enumerate(annots):
+
+    topleft = (frame_annots[1], frame_annots[0])
+    bottomright = (frame_annots[1] + frame_annots[3],
+                   frame_annots[0] + frame_annots[2])
+
+    annotations[str(fn)] = {
+        'topleft': topleft,
+        'bottomright': bottomright
+    }
+
+  return annotations
+
+
+def replaymobile_frames(lowlevelfile, original_directory):
+  vfilename = lowlevelfile.make_path(
+      directory=original_directory,
+      extension='.mov')
+  is_not_tablet = not lowlevelfile.is_tablet()
+  for frame in reader(vfilename):
+    frame = numpy.rollaxis(frame, 2, 1)
+    if is_not_tablet:
+      frame = frame[:, ::-1, :]
+    yield frame
 
 
 class Client(Base):
@@ -42,7 +81,7 @@ class Client(Base):
     return "Client('%s', '%s')" % (self.id, self.set)
 
 
-class File(Base):
+class File(Base, BaseFile):
   """Generic file container"""
 
   __tablename__ = 'file'
@@ -80,29 +119,6 @@ class File(Base):
 
   def __repr__(self):
     return "File('%s')" % self.path
-
-  def make_path(self, directory=None, extension=None):
-    """Wraps the current path so that a complete path is formed
-
-    Keyword parameters:
-
-    directory
-      An optional directory name that will be prefixed to the returned result.
-
-    extension
-      An optional extension that will be suffixed to the returned filename. The
-      extension normally includes the leading ``.`` character as in ``.jpg`` or
-      ``.hdf5``.
-
-    Returns a string containing the newly generated file path.
-    """
-
-    if not directory:
-      directory = ''
-    if not extension:
-      extension = ''
-
-    return str(os.path.join(directory, self.path + extension))
 
   def videofile(self, directory=None):
     """Returns the path to the database video file for this object
@@ -192,8 +208,7 @@ class File(Base):
       raise RuntimeError("%s is not an attack" % self)
     return self.attack[0]
 
-  # def load(self, directory=None, extension='.hdf5'):
-  def load(self, directory=None, extension=None):
+  def load(self, directory=None, extension='.mov'):
     """Loads the data at the specified location and using the given extension.
 
     Keyword parameters:
@@ -210,52 +225,52 @@ class File(Base):
       output and the codec for saving the input blob.
     """
     logger.debug('video file extension: {}'.format(extension))
-    if extension is None:
-        extension = '.mov'
-       # if self.get_quality() == 'laptop':
-       #     extension = '.mov'
-       # else:
-       #     extension = '.mp4'
+
+    directory = directory or self.original_directory
+    extension = extension or self.original_extension
 
     if extension == '.mov' or extension == '.mp4':
-        vfilename = self.make_path(directory, extension)
-        video = bob.io.video.reader(vfilename)
-        vin = video.load()
+      vfilename = self.make_path(directory, extension)
+      video = bob.io.video.reader(vfilename)
+      vin = video.load()
     else:
-        vin = bob.io.base.load(self.make_path(directory, extension))
+      vin = bob.io.base.load(self.make_path(directory, extension))
 
     vin = numpy.rollaxis(vin, 3, 2)
     if not self.is_tablet():
-        logger.debug('flipping mobile video')
-        vin = vin[:, :, ::-1, :]
-
-   # if self.is_rotated():
-   #     vin = vin[:, :, ::-1,:]
+      logger.debug('flipping mobile video')
+      vin = vin[:, :, ::-1, :]
 
     return vin
-    # return bob.io.base.load(self.make_path(directory, extension))
 
-  def save(self, data, directory=None, extension='.hdf5'):
-    """Saves the input data at the specified location and using the given
-    extension.
+  @property
+  def annotations(self):
+    if hasattr(self, 'annotation_directory') and \
+            self.annotation_directory is not None:
+      # return the external annotations
+      annotations = read_annotation_file(
+          os.path.join(self.annotation_directory,
+                       self.path + self.annotation_extension),
+          self.annotation_type)
+      return annotations
 
-    Keyword parameters:
+    # return original annotations
+    return replaymobile_annotations(self, self.original_directory)
 
-    data
-      The data blob to be saved (normally a :py:class:`numpy.ndarray`).
+  @property
+  def frames(self):
+    return replaymobile_frames(self, self.original_directory)
 
-    directory
-      [optional] If not empty or None, this directory is prefixed to the final
-      file destination
+  @property
+  def number_of_frames(self):
+    vfilename = self.make_path(
+        directory=self.original_directory,
+        extension='.mov')
+    return reader(vfilename).number_of_frames
 
-    extension
-      [optional] The extension of the filename - this will control the type of
-      output and the codec for saving the input blob.
-    """
-
-    path = self.make_path(directory, extension)
-    bob.io.base.create_directories_safe(os.path.dirname(path))
-    bob.io.base.save(data, path)
+  @property
+  def frame_shape(self):
+    return REPLAYMOBILE_FRAME_SHAPE
 
 
 # Intermediate mapping from RealAccess's to Protocol's
