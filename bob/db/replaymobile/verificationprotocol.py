@@ -39,6 +39,7 @@ class File(BaseFile):
     def __init__(self, f, framen=None):
         self._f = f
         self.framen = framen
+        self.original_path = f.path
         self.path = '{}_{:03d}'.format(f.path, framen)
         self.client_id = f.client_id
         self.file_id = '{}_{}'.format(f.id, framen)
@@ -56,6 +57,10 @@ class File(BaseFile):
         else:
             return super(File, self).load(directory, extension)
 
+    @property
+    def annotations(self):
+        return self._f.annotations[str(self.framen)]
+
 
 class Database(BaseDatabase):
     """
@@ -66,17 +71,71 @@ class Database(BaseDatabase):
     """
     __doc__ = __doc__
 
-    def __init__(self, max_number_of_frames=None, original_directory=None, original_extension=None):
-        super(Database, self).__init__(original_directory, original_extension)
+    def __init__(self,
+                 max_number_of_frames=None,
+                 original_directory=None,
+                 original_extension=None,
+                 annotation_directory=None,
+                 annotation_extension='.json',
+                 annotation_type='json',
+                 ):
 
         # call base class constructors to open a session to the database
-        self._db = LDatabase()
+        self._db = LDatabase(
+            original_directory=original_directory,
+            original_extension=original_extension,
+            annotation_directory=annotation_directory,
+            annotation_extension=annotation_extension,
+            annotation_type=annotation_type,
+        )
+
+        super(Database, self).__init__(original_directory, original_extension)
 
         self.max_number_of_frames = max_number_of_frames or 10
         # 240 is the guaranteed number of frames in replay mobile videos
         self.indices = selected_indices(240, self.max_number_of_frames)
         self.low_level_group_names = ('train', 'devel', 'test')
         self.high_level_group_names = ('world', 'dev', 'eval')
+
+    @property
+    def original_directory(self):
+        return self._db.original_directory
+
+    @original_directory.setter
+    def original_directory(self, value):
+        self._db.original_directory = value
+
+    @property
+    def original_extension(self):
+        return self._db.original_extension
+
+    @original_extension.setter
+    def original_extension(self, value):
+        self._db.original_extension = value
+
+    @property
+    def annotation_directory(self):
+        return self._db.annotation_directory
+
+    @annotation_directory.setter
+    def annotation_directory(self, value):
+        self._db.annotation_directory = value
+
+    @property
+    def annotation_extension(self):
+        return self._db.annotation_extension
+
+    @annotation_extension.setter
+    def annotation_extension(self, value):
+        self._db.annotation_extension = value
+
+    @property
+    def annotation_type(self):
+        return self._db.annotation_type
+
+    @annotation_type.setter
+    def annotation_type(self, value):
+        self._db.annotation_type = value
 
     def protocol_names(self):
         """Returns all registered protocol names
